@@ -122,49 +122,32 @@ class BaseWordSearch(object):
         for tree_type in self.suffix_trees:
             for i, tree in enumerate(self.suffix_trees[tree_type]):
                 result = tree.find_pattern(word)
-                if result != []:
+                if result == []:
+                    continue
                     if tree_type == "rows":
-                        continue
                         for r in result:
                             beginning = (i, r)
                             end = (i + len(word), r)
                             loc_info.append( (beginning, end) )
 
                     elif tree_type == "cols":
-                        continue
                         for r in result:
                             beginning = (r, i)
                             end = (r , i + len(word))
                             loc_info.append( (beginning, end) )
 
                     elif tree_type == "diag_down":
-                        continue
-                        main_diag_pos = self.rows - 1
-                        if i < main_diag_pos:
-                            row = self.rows - i - 1
-                            col = 0
-                        elif i > main_diag_pos:
-                            row = 0
-                            col = i - main_diag_pos
-                        else:
-                            row = 0
-                            col = 0
+                        row, col = self._diag_down_grid_loc_from_index(i)
                         for r in result:
-                            beg_r, beg_c = self._diag_down_move_n(row, col, r)
-                            end_r, end_c = self._diag_down_move_n(beg_r, beg_c, len(word))
-                            beginning = (beg_r, beg_c)
-                            end = (end_r, end_c)
-                            loc_info.append( (beginning, end) )
+                            coords = self._diag_down_get_coords(word, row, col, r)
+                            loc_info.append( coords )
 
                     elif tree_type == "diag_up":
                         row, col = self._diag_up_grid_loc_from_index(i)
                         for r in result:
-                            beg_r, beg_c = self._diag_up_move_n(row, col, r)
-                            end_r, end_c = self._diag_up_move_n(beg_r, beg_c, len(word))
-                            beginning = (beg_r, beg_c)
-                            end = (end_r, end_c)
-                            loc_info.append( (beginning, end) )
-                            print(beginning, end)
+                            coords = self._diag_up_get_coords(word, row, col, r)
+                            loc_info.append( coords )
+
         return loc_info
 
     def _diag_down_grid_loc_from_index(self, i):
@@ -173,7 +156,41 @@ class BaseWordSearch(object):
         the corresponding grid row,col pair location where the match
         begins.
         """
-        return ()
+        main_diag_pos = self.rows - 1
+        if i < main_diag_pos:
+            row = self.rows - i - 1
+            col = 0
+        elif i > main_diag_pos:
+            row = 0
+            col = i - main_diag_pos
+        else:
+            row = 0
+            col = 0
+        return row, col
+
+    def _diag_down_get_coords(self, word, row, col, depth):
+        """
+        Given the location where the string occurs in the grid and
+        the location in the down suffix array where the string begins,
+        returns the word's beginning and end coordinates in the grid
+        """
+        beg_r, beg_c = self._diag_down_move_n(row, col, depth)
+        end_r, end_c = self._diag_down_move_n(beg_r, beg_c, len(word))
+        beginning = (beg_r, beg_c)
+        end = (end_r, end_c)
+        return beginning, end
+
+    def _diag_up_get_coords(self, word, row, col, depth):
+        """
+        Given the location where the string occurs in the grid and
+        the location in the up suffix array where the string begins,
+        returns the word's beginning and end coordinates in the grid
+        """
+        beg_r, beg_c = self._diag_up_move_n(row, col, depth)
+        end_r, end_c = self._diag_up_move_n(beg_r, beg_c, len(word))
+        beginning = (beg_r, beg_c)
+        end = (end_r, end_c)
+        return beginning, end
 
     def _diag_up_grid_loc_from_index(self, i):
         """
