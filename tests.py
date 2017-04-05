@@ -20,17 +20,16 @@ def test_str_():
     print("Testing str representations of grid... ", end='')
 
     ws = BaseWordSearch("grids/grid1.txt")
-    rep = ws.__str__()
     assert repr(ws.__str__()) == \
-        repr('rows\nQWER\nASDF\ncols\nQA\nWS\nED\nRF\ndiags\nA\nQS\nWD\nEF\nR\nQ\nAW\nSE\nDR\nF')
+        repr('rows\nQWER\nASDF\ncols\nQA\nWS\nED\nRF\ndiag_down\nA\nQS\nWD\nEF\nR\ndiag_up\nQ\nAW\nSE\nDR\nF')
 
     ws = BaseWordSearch("grids/grid2.txt")
     assert repr(ws.__str__()) == \
-        repr('rows\nQA\nWS\nED\nRF\ncols\nQWER\nASDF\ndiags\nR\nEF\nWD\nQS\nA\nQ\nWA\nES\nRD\nF')
+        repr('rows\nQA\nWS\nED\nRF\ncols\nQWER\nASDF\ndiag_down\nR\nEF\nWD\nQS\nA\ndiag_up\nQ\nWA\nES\nRD\nF')
 
     ws = BaseWordSearch("grids/grid3.txt")
     assert repr(ws.__str__()) == \
-        repr('rows\nQWE\nASD\nZXC\ncols\nQAZ\nWSX\nEDC\ndiags\nZ\nAX\nQSC\nWD\nE\nQ\nAW\nZSE\nXD\nC')
+        repr('rows\nQWE\nASD\nZXC\ncols\nQAZ\nWSX\nEDC\ndiag_down\nZ\nAX\nQSC\nWD\nE\ndiag_up\nQ\nAW\nZSE\nXD\nC')
 
     print("Done")
 
@@ -44,7 +43,7 @@ def test_find_word():
 
 def main():
     test_load_csv()
-    #test_str_()
+    test_str_()
     test_find_word()
 
 if __name__ == '__main__':
