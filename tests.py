@@ -87,7 +87,6 @@ def test_find_word():
 
     print("Done")
 
-
 def test_build_string_from_coords():
     print("Testing build string from coords...", end="")
 
