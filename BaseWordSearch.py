@@ -124,29 +124,30 @@ class BaseWordSearch(object):
                 result = tree.find_pattern(word)
                 if result == []:
                     continue
-                    if tree_type == "rows":
-                        for r in result:
-                            beginning = (i, r)
-                            end = (i + len(word), r)
-                            loc_info.append( (beginning, end) )
 
-                    elif tree_type == "cols":
-                        for r in result:
-                            beginning = (r, i)
-                            end = (r , i + len(word))
-                            loc_info.append( (beginning, end) )
+                if tree_type == "rows":
+                    for r in result:
+                        beginning = (i, r)
+                        end = (i, r + len(word))
+                        loc_info.append( (beginning, end) )
 
-                    elif tree_type == "diag_down":
-                        row, col = self._diag_down_grid_loc_from_index(i)
-                        for r in result:
-                            coords = self._diag_down_get_coords(word, row, col, r)
-                            loc_info.append( coords )
+                elif tree_type == "cols":
+                    for r in result:
+                        beginning = (r, i)
+                        end = (r + len(word), i)
+                        loc_info.append( (beginning, end) )
 
-                    elif tree_type == "diag_up":
-                        row, col = self._diag_up_grid_loc_from_index(i)
-                        for r in result:
-                            coords = self._diag_up_get_coords(word, row, col, r)
-                            loc_info.append( coords )
+                elif tree_type == "diag_down":
+                    row, col = self._diag_down_grid_loc_from_index(i)
+                    for r in result:
+                        coords = self._diag_down_get_coords(word, row, col, r)
+                        loc_info.append( coords )
+
+                elif tree_type == "diag_up":
+                    row, col = self._diag_up_grid_loc_from_index(i)
+                    for r in result:
+                        coords = self._diag_up_get_coords(word, row, col, r)
+                        loc_info.append( coords )
 
         return loc_info
 
@@ -235,4 +236,114 @@ class BaseWordSearch(object):
         return cur_row, cur_col
 
     def find_words(self, words):
-        return [[]]
+        locations = []
+        for w in words:
+            locations.append(self.find_word(w))
+        return locations
+
+    def build_string_from_coords(self, coords):
+        """
+        Given a coords tuple (the begining coords for a string and
+        the end coords for a string), returns the found string
+        """
+        if self._in_row(coords):
+            return self._recover_from_row(coords)
+        elif self._in_col(coords):
+            return self._recover_from_col(coords)
+        elif self._in_diag_down(coords):
+            return self._recover_from_diag_down(coords)
+        elif self._in_diag_up(coords):
+            return self._recover_from_diag_up(coords)
+        else:
+            return ""
+
+    def _in_row(self, coords):
+        """
+        Returns true if a given coords is contained within a row
+        """
+        beg_row = coords[0][0]
+        end_row = coords[1][0]
+        return beg_row == end_row
+
+    def _recover_from_row(self, coords):
+        """
+        Returns a string from the coords specified built with the grid
+        """
+        beg_row, beg_col = coords[0]
+        end_row, end_col = coords[1]
+        length = end_col - beg_col
+        pattern = ""
+        for i in range(length):
+            pattern += self.grid[beg_row][beg_col]
+            beg_col += 1
+        return pattern
+
+    def _in_col(self, coords):
+        """
+        Returns true if a given coords is contained within a column
+        """
+        beg_col = coords[0][1]
+        end_col = coords[1][1]
+        return beg_col == end_col
+
+    def _recover_from_col(self, coords):
+        """
+        Returns a string from the coords specified built with the grid
+        """
+        beg_row, beg_col = coords[0]
+        end_row, end_col = coords[1]
+        length = end_row - beg_row
+        pattern = ""
+        for i in range(length):
+            pattern += self.grid[beg_row][beg_col]
+            beg_row += 1
+        return pattern
+
+    def _in_diag_down(self, coords):
+        """
+        Returns true if given coords are contained in a downwards
+        diagonal
+        """
+        beg_row, beg_col = coords[0]
+        end_row, end_col = coords[1]
+        return beg_row < end_row and beg_col < end_col
+
+    def _recover_from_diag_down(self, coords):
+        """
+        Returns a string spanning the coords specified built from
+        the grid
+        """
+        beg_row, beg_col = coords[0]
+        end_row, end_col = coords[1]
+        # NOTE end_row / beg_row should be end_col / beg_col?
+        length = end_row - beg_row
+        pattern = ""
+        for i in range(length):
+            pattern += self.grid[beg_row][beg_col]
+            beg_row += 1
+            beg_col += 1
+        return pattern
+
+    def _in_diag_up(self, coords):
+        """
+        Returns true if given coords are contained in an upwards
+        diagonal
+        """
+        beg_row, beg_col = coords[0]
+        end_row, end_col = coords[1]
+        return beg_row > end_row and beg_col < end_col
+
+    def _recover_from_diag_up(self, coords):
+        """
+        Returns a string spanning the coords specified built from
+        the grid
+        """
+        beg_row, beg_col = coords[0]
+        end_row, end_col = coords[1]
+        length = end_col - beg_col
+        pattern = ""
+        for i in range(length):
+            pattern += self.grid[beg_row][beg_col]
+            beg_row -= 1
+            beg_col += 1
+        return pattern
