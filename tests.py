@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 from BaseWordSearch import BaseWordSearch
@@ -34,17 +36,107 @@ def test_str_():
     print("Done")
 
 def test_find_word():
+    print("Testing find word... ", end='')
+    ws = BaseWordSearch("grids/grid1.txt")
+    assert ws.find_word("QWER") == [((0, 0), (0, 4))]
+    assert ws.find_word("QWE") == [((0, 0), (0, 3))]
+    assert ws.find_word("QW") == [((0, 0), (0, 2))]
+    assert ws.find_word("Q") == [((0, 0), (0, 1)), ((0, 0), \
+        (1, 0)), ((0, 0), (1, 1)), ((0, 0), (-1, 1))]
+    assert ws.find_word("ASDF") == [((1, 0), (1, 4))]
+    assert ws.find_word("ASD") == [((1, 0), (1, 3))]
+    assert ws.find_word("QA") == [((0, 0), (2, 0))]
+    assert ws.find_word("A") == [((1, 0), (1, 1)), ((1, 0), \
+        (2, 0)), ((1, 0), (2, 1)), ((1, 0), (0, 1))]
+    assert ws.find_word("RF") == [((0, 3), (2, 3))]
+    assert ws.find_word("R") == [((0, 3), (0, 4)), ((0, 3), \
+        (1, 3)), ((0, 3), (1, 4)), ((0, 3), (-1, 4))]
+    assert ws.find_word("F") == [((1, 3), (1, 4)), ((1, 3), \
+        (2, 3)), ((1, 3), (2, 4)), ((1, 3), (0, 4))]
+    assert ws.find_word("QS") == [((0, 0), (2, 2))]
+    assert ws.find_word("AW") == [((1, 0), (-1, 2))]
+
+    ws = BaseWordSearch("grids/grid2.txt")
+    assert ws.find_word("QA") == [((0, 0), (0, 2))]
+    assert ws.find_word("RF") == [((3, 0), (3, 2))]
+    assert ws.find_word("Q") == [((0, 0), (0, 1)), ((0, 0), \
+        (1, 0)), ((0, 0), (1, 1)), ((0, 0), (-1, 1))]
+    assert ws.find_word("F") == [((3, 1), (3, 2)), ((3, 1), \
+        (4, 1)), ((3, 1), (4, 2)), ((3, 1), (2, 2))]
+    assert ws.find_word("QWER") == [((0, 0), (4, 0))]
+    assert ws.find_word("ER") == [((2, 0), (4, 0))]
+    assert ws.find_word("WER") == [((1, 0), (4, 0))]
+    assert ws.find_word("QSF") == []
+    assert ws.find_word("QS") == [((0, 0), (2, 2))]
+    assert ws.find_word("EF") == [((2, 0), (4, 2))]
+    assert ws.find_word("WA") == [((1, 0), (-1, 2))]
+
     ws = BaseWordSearch("grids/grid3.txt")
+    assert ws.find_word("QAZ") == [((0, 0), (3, 0))]
+    assert ws.find_word("AZ") == [((1, 0), (3, 0))]
+    assert ws.find_word("QSC") == [((0, 0), (3, 3))]
+    assert ws.find_word("SC") == [((1, 1), (3, 3))]
+    assert ws.find_word("WE") == [((0, 1), (0, 3))]
+    assert ws.find_word("ZSE") == [((2, 0), (-1, 3))]
+    assert ws.find_word("SE") == [((1, 1), (-1, 3))]
+    assert ws.find_word("AS") == [((1, 0), (1, 2))]
+    assert ws.find_word("AW") == [((1, 0), (-1, 2))]
+    assert ws.find_word("X") == [((2, 1), (2, 2)), ((2, 1), \
+        (3, 1)), ((2, 1), (3, 2)), ((2, 1), (1, 2))]
+    assert ws.find_word("ZXC") == [((2, 0), (2, 3))]
 
-    ws.find_word("Q")
-    ws.find_word("ZSE")
-    ws.find_word("C")
+    print("Done")
 
+
+def test_build_string_from_coords():
+    print("Testing build string from coords...", end="")
+
+    ws = BaseWordSearch("grids/grid1.txt")
+    words = gen_random_strings_from_letters("QWERASDF")
+    w_i = 0
+    for results in ws.find_words(words):
+        for coord in results:
+            assert ws.build_string_from_coords(coord) == words[w_i]
+        w_i += 1
+
+    ws = BaseWordSearch("grids/grid2.txt")
+    words = gen_random_strings_from_letters("QWERASDF")
+    w_i = 0
+    for results in ws.find_words(words):
+        for coord in results:
+            assert ws.build_string_from_coords(coord) == words[w_i]
+        w_i += 1
+
+    ws = BaseWordSearch("grids/grid3.txt")
+    words = gen_random_strings_from_letters("QWEASDZXC")
+    w_i = 0
+    for results in ws.find_words(words):
+        for coord in results:
+            assert ws.build_string_from_coords(coord) == words[w_i]
+        w_i += 1
+
+    print("Done")
+
+def gen_random_strings_from_letters(letters):
+    letters += " "
+    words = []
+    for i in range(100):
+        words.append(gen_random_string(letters))
+    return words
+
+def gen_random_string(letters):
+    s = ""
+    char = random.choice(letters)
+    while char != " ":
+        s += char
+        char = random.choice(letters)
+    return s
 
 def main():
     test_load_csv()
     test_str_()
     test_find_word()
+    test_build_string_from_coords()
 
 if __name__ == '__main__':
     main()
