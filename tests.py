@@ -131,11 +131,28 @@ def gen_random_string(letters):
         char = random.choice(letters)
     return s
 
+def test_show_board():
+    print("Testing show board...", end='')
+    ws = BaseWordSearch("grids/grid1.txt")
+    ws.find_words(["QWER", "E", "QS", "ED"])
+    assert repr(ws.show_board(True)) == repr('q w e r \nA s d F ')
+
+    ws = BaseWordSearch("grids/grid2.txt")
+    ws.find_words(["QWER", "QS", "ED", "Z"])
+    assert repr(ws.show_board(True)) == repr('q A \nw s \ne d \nr F ')
+
+    ws = BaseWordSearch("grids/grid3.txt")
+    ws.find_words(["ZSE", "QS", "ED", "C"])
+    assert repr(ws.show_board(True)) == repr('q W e \nA s d \nz X c ')
+
+    print("Done")
+
 def main():
     test_load_csv()
     test_str_()
     test_find_word()
     test_build_string_from_coords()
+    test_show_board()
 
 if __name__ == '__main__':
     main()

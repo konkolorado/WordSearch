@@ -32,11 +32,22 @@ class BaseWordSearch(object):
         endchar = len(s) - 1 # To chop off trailing newline
         return s[:endchar]
 
-    def show_board(self):
+    def show_board(self, silent=False):
+        """
+        Display search results from all found words so far.
+        Lowercased letters are letter which have been matched against.
+        Can be run in silent mode to simply return the string
+        representation of the board
+        """
+        s = ""
         for i in range(self.rows):
             for j in range(self.cols):
-                print(self.board[i][j], end="")
-            print()
+                s += self.board[i][j] + " "
+            if i != self.rows - 1:
+                s += "\n"
+        if not silent:
+            print(repr(s))
+        return s
 
     def _load_csv(self, filename):
         grid = []
