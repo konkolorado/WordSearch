@@ -2,8 +2,6 @@
 Implements key word search functionality
 TODO
 - Implement find_first_occurence or find_all_occurence
-- Implement show_board
--- Idea: lowercase letters which have been matched on the grid
 """
 import sys
 
