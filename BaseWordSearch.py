@@ -1,5 +1,9 @@
 """
 Implements key word search functionality
+TODO
+- Implement find_first_occurence or find_all_occurence
+- Implement show_board
+-- Idea: lowercase letters which have been matched on the grid
 """
 import sys
 
@@ -11,6 +15,7 @@ class BaseWordSearch(object):
 
     def __init__(self, filename):
         self.grid = self._load_csv(filename)
+        self.board = self.grid.copy()
         self.rows = len(self.grid)
         self.cols = len(self.grid[0])
         self.suffix_trees = self._make_suffix_trees_from_grid()
@@ -26,6 +31,12 @@ class BaseWordSearch(object):
 
         endchar = len(s) - 1 # To chop off trailing newline
         return s[:endchar]
+
+    def show_board(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                print(self.board[i][j], end="")
+            print()
 
     def _load_csv(self, filename):
         grid = []
@@ -149,6 +160,7 @@ class BaseWordSearch(object):
                         coords = self._diag_up_get_coords(word, row, col, r)
                         loc_info.append( coords )
 
+        self._update_board(loc_info)
         return loc_info
 
     def _diag_down_grid_loc_from_index(self, i):
@@ -236,10 +248,10 @@ class BaseWordSearch(object):
         return cur_row, cur_col
 
     def find_words(self, words):
-        locations = []
+        self.locations = []
         for w in words:
-            locations.append(self.find_word(w))
-        return locations
+            self.locations.append(self.find_word(w))
+        return self.locations
 
     def build_string_from_coords(self, coords):
         """
@@ -315,7 +327,6 @@ class BaseWordSearch(object):
         """
         beg_row, beg_col = coords[0]
         end_row, end_col = coords[1]
-        # NOTE end_row / beg_row should be end_col / beg_col?
         length = end_row - beg_row
         pattern = ""
         for i in range(length):
@@ -347,3 +358,55 @@ class BaseWordSearch(object):
             beg_row -= 1
             beg_col += 1
         return pattern
+
+    def _update_board(self, loc_info):
+        """
+        Given a list of coordinates, finds which characters in the
+        board the coordinates correspond to and lowercases them
+        """
+        for coord in loc_info:
+            if self._in_row(coord):
+                self._lowercase_in_row(coord)
+            elif self._in_col(coord):
+                self._lowercase_in_col(coord)
+            elif self._in_diag_down(coord):
+                self._lowercase_in_diag_down(coord)
+            elif self._in_diag_up(coord):
+                self._lowercase_in_diag_up(coord)
+            else:
+                sys.exit()
+
+    def _lowercase_in_row(self, coord):
+        beg_row, beg_col = coord[0]
+        end_row, end_col = coord[1]
+        length = end_col - beg_col
+        for i in range(length):
+            self.board[beg_row][beg_col] = self.board[beg_row][beg_col].lower()
+            beg_col += 1
+
+    def _lowercase_in_col(self, coord):
+        beg_row, beg_col = coord[0]
+        end_row, end_col = coord[1]
+        length = end_row - beg_row
+
+        for i in range(length):
+            self.board[beg_row][beg_col] = self.board[beg_row][beg_col].lower()
+            beg_row += 1
+
+    def _lowercase_in_diag_down(self, coord):
+        beg_row, beg_col = coord[0]
+        end_row, end_col = coord[1]
+        length = end_row - beg_row
+        for i in range(length):
+            self.board[beg_row][beg_col] = self.board[beg_row][beg_col].lower()
+            beg_row += 1
+            beg_col += 1
+
+    def _lowercase_in_diag_up(self, coord):
+        beg_row, beg_col = coord[0]
+        end_row, end_col = coord[1]
+        length = end_col - beg_col
+        for i in range(length):
+            self.board[beg_row][beg_col] = self.board[beg_row][beg_col].lower()
+            beg_row -= 1
+            beg_col += 1
